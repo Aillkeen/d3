@@ -79,38 +79,56 @@
 				.attr('class', 'map-chart');
 
     var projection = d3.geoAlbers()
-        .center([-36.820037, -7.195265])
+        .center([-41.702846, -10.313559])
         .rotate([0, 0])
         .parallels([0, 0])
-        .scale(12000);
+        .scale(2000);
 
     var path = d3.geoPath().projection(projection);
 
     var color = d3.scaleThreshold();
 
-    d3.json("data/topo_pb.json", function(error, pb) {
+    d3.json("municipios_sab.json", function(error, pb) {
       if (error) throw error;
 
-			var municipios = topojson.feature(pb, pb.objects.geo_pb);
+			var municipios = topojson.feature(pb, pb.objects.municipios_sab);
 
-			color
-      	.domain([5000, 10000, 30000, 50000, 100000])
-        // Purple
-    		.range([d3.rgb(84, 39, 143, 0.2), d3.rgb(84, 39, 143, 0.4), d3.rgb(84, 39, 143, 0.6), d3.rgb(84, 39, 143, 0.8), d3.rgb(84, 39, 143, 1)]);
 				// Orange
     		// .range([d3.rgb(248, 80, 44, 0.2), d3.rgb(248, 80, 44, 0.4), d3.rgb(248, 80, 44, 0.6), d3.rgb(248, 80, 44, 0.8), d3.rgb(248, 80, 44, 1)]);
         // Blue
     		// .range([d3.rgb(8, 48, 107, 0.2), d3.rgb(8, 48, 107, 0.4), d3.rgb(8, 48, 107, 0.6), d3.rgb(8, 48, 107, 0.8), d3.rgb(8, 48, 107, 1)]);
 
-      svg.selectAll(".municipio")
+    	svg.selectAll(".municipio")
         .data(municipios.features)
       .enter().append("path")
-        .attr("class", function(d) { return "municipio " + d.id; })
-        .attr("d", path)
-        .attr("fill", function(d){ return color(+d.properties.populacao)});
+        .attr("id", function(d) { return "municipio" + d.properties.ID; })
+        .attr("d", path);
+        //.attr("fill", function(d){ return color(+d.AREA_KM2)});
+
+
+    d3.csv("municipios_sab.csv", function (error, dados) {
+      
+      if(error) throw error;
+
+      color
+      	.domain([5000, 10000, 30000, 50000, 100000])
+        // Purple
+    		.range([d3.rgb(84, 39, 143, 0.2), d3.rgb(84, 39, 143, 0.4), d3.rgb(84, 39, 143, 0.6), d3.rgb(84, 39, 143, 0.8), d3.rgb(84, 39, 143, 1)]);
+
+
+    for(var i in dados){
+    	var municipio = dados[i];
+    	if(municipio.GEOCODIGO) {
+    		svg.select("#municipio" + municipio.GEOCODIGO)
+    			.attr("fill", color(+municipio.AREA_KM2));
+    	}
+    };
 
 
     });
+
+   });
+        //
 		</script>
 
 </body>
